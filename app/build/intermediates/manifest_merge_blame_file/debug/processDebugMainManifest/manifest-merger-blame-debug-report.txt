@@ -1,0 +1,242 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.studiodragon.peanuts"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="36" />
+10
+11    <!-- Permissions -->
+12    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+12-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:5:5-79
+12-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:5:22-76
+13    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+13-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:6:5-81
+13-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:6:22-78
+14    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+14-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:7:5-79
+14-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:7:22-76
+15    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+15-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:8:5-77
+15-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:8:22-74
+16    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+16-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:9:5-86
+16-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:9:22-83
+17    <uses-permission android:name="android.permission.INTERNET" />
+17-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:10:5-67
+17-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:10:22-64
+18    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+18-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:11:5-77
+18-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:11:22-74
+19
+20    <permission
+20-->[androidx.core:core:1.15.0] /home/codespace/.gradle/caches/9.4.0/transforms/6c56afdc6eaf9b1c9c32f6470debff79/transformed/core-1.15.0/AndroidManifest.xml:22:5-24:47
+21        android:name="com.studiodragon.peanuts.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+21-->[androidx.core:core:1.15.0] /home/codespace/.gradle/caches/9.4.0/transforms/6c56afdc6eaf9b1c9c32f6470debff79/transformed/core-1.15.0/AndroidManifest.xml:23:9-81
+22        android:protectionLevel="signature" />
+22-->[androidx.core:core:1.15.0] /home/codespace/.gradle/caches/9.4.0/transforms/6c56afdc6eaf9b1c9c32f6470debff79/transformed/core-1.15.0/AndroidManifest.xml:24:9-44
+23
+24    <uses-permission android:name="com.studiodragon.peanuts.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+24-->[androidx.core:core:1.15.0] /home/codespace/.gradle/caches/9.4.0/transforms/6c56afdc6eaf9b1c9c32f6470debff79/transformed/core-1.15.0/AndroidManifest.xml:26:5-97
+24-->[androidx.core:core:1.15.0] /home/codespace/.gradle/caches/9.4.0/transforms/6c56afdc6eaf9b1c9c32f6470debff79/transformed/core-1.15.0/AndroidManifest.xml:26:22-94
+25
+26    <application
+26-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:13:5-67:19
+27        android:allowBackup="true"
+27-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:14:9-35
+28        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+28-->[androidx.core:core:1.15.0] /home/codespace/.gradle/caches/9.4.0/transforms/6c56afdc6eaf9b1c9c32f6470debff79/transformed/core-1.15.0/AndroidManifest.xml:28:18-86
+29        android:debuggable="true"
+30        android:extractNativeLibs="false"
+31        android:icon="@android:drawable/ic_dialog_map"
+31-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:15:9-55
+32        android:label="@string/app_name"
+32-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:16:9-41
+33        android:supportsRtl="true"
+33-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:17:9-35
+34        android:theme="@style/Theme.Peanuts" >
+34-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:18:9-45
+35
+36        <!-- Main Activity -->
+37        <activity
+37-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:21:9-48:20
+38            android:name="com.studiodragon.peanuts.ui.main.MainActivity"
+38-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:22:13-49
+39            android:exported="true"
+39-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:23:13-36
+40            android:launchMode="singleTask" >
+40-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:24:13-44
+41            <intent-filter>
+41-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:25:13-28:29
+42                <action android:name="android.intent.action.MAIN" />
+42-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:26:17-69
+42-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:26:25-66
+43
+44                <category android:name="android.intent.category.LAUNCHER" />
+44-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:27:17-77
+44-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:27:27-74
+45            </intent-filter>
+46
+47            <!-- 1. Intercept Share Sheet (When user clicks "Share" in Google Maps) -->
+48            <intent-filter>
+48-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:31:13-35:29
+49                <action android:name="android.intent.action.SEND" />
+49-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:32:17-69
+49-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:32:25-66
+50
+51                <category android:name="android.intent.category.DEFAULT" />
+51-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:33:17-76
+51-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:33:27-73
+52
+53                <data android:mimeType="text/plain" />
+53-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:34:17-55
+53-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:34:23-52
+54            </intent-filter>
+55
+56            <!-- 2. Intercept Direct Link Clicks -->
+57            <intent-filter android:autoVerify="true" >
+57-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:38:13-47:29
+57-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:38:28-53
+58                <action android:name="android.intent.action.VIEW" />
+58-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:39:17-69
+58-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:39:25-66
+59
+60                <category android:name="android.intent.category.DEFAULT" />
+60-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:33:17-76
+60-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:33:27-73
+61                <category android:name="android.intent.category.BROWSABLE" />
+61-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:41:17-78
+61-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:41:27-75
+62
+63                <data android:scheme="https" />
+63-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:34:17-55
+63-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:42:23-45
+64                <data android:host="maps.app.goo.gl" />
+64-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:34:17-55
+64-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:43:23-53
+65                <data android:host="maps.google.com" />
+65-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:34:17-55
+65-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:43:23-53
+66                <data android:host="goo.gl" />
+66-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:34:17-55
+66-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:43:23-53
+67                <data
+67-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:34:17-55
+68                    android:host="www.google.com"
+68-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:43:23-53
+69                    android:pathPrefix="/maps" />
+69-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:46:53-79
+70            </intent-filter>
+71        </activity>
+72
+73        <!-- Map Picker Activity -->
+74        <activity
+74-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:51:9-53:40
+75            android:name="com.studiodragon.peanuts.ui.mappicker.MapPickerActivity"
+75-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:52:13-59
+76            android:exported="false" />
+76-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:53:13-37
+77
+78        <!-- Settings Activity -->
+79        <activity
+79-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:56:9-58:40
+80            android:name="com.studiodragon.peanuts.ui.settings.SettingsActivity"
+80-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:57:13-57
+81            android:exported="false" />
+81-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:58:13-37
+82
+83        <!-- Mock Location Foreground Service -->
+84        <service
+84-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:61:9-65:39
+85            android:name="com.studiodragon.peanuts.core.MockLocationService"
+85-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:62:13-53
+86            android:exported="false"
+86-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:63:13-37
+87            android:foregroundServiceType="location"
+87-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:64:13-53
+88            android:label="peanuts" />
+88-->/workspaces/techpremium2/peanuts/app/src/main/AndroidManifest.xml:65:13-36
+89
+90        <provider
+90-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/9.4.0/transforms/2941ddd5b25488ac4c7562939b60cdc3/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+91            android:name="androidx.startup.InitializationProvider"
+91-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/9.4.0/transforms/2941ddd5b25488ac4c7562939b60cdc3/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
+92            android:authorities="com.studiodragon.peanuts.androidx-startup"
+92-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/9.4.0/transforms/2941ddd5b25488ac4c7562939b60cdc3/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
+93            android:exported="false" >
+93-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/9.4.0/transforms/2941ddd5b25488ac4c7562939b60cdc3/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
+94            <meta-data
+94-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/9.4.0/transforms/2941ddd5b25488ac4c7562939b60cdc3/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+95                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+95-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/9.4.0/transforms/2941ddd5b25488ac4c7562939b60cdc3/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+96                android:value="androidx.startup" />
+96-->[androidx.emoji2:emoji2:1.3.0] /home/codespace/.gradle/caches/9.4.0/transforms/2941ddd5b25488ac4c7562939b60cdc3/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+97            <meta-data
+97-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/codespace/.gradle/caches/9.4.0/transforms/7681f29af00bb5497f1bf5c72adaf824/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:29:13-31:52
+98                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+98-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/codespace/.gradle/caches/9.4.0/transforms/7681f29af00bb5497f1bf5c72adaf824/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:30:17-78
+99                android:value="androidx.startup" />
+99-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/codespace/.gradle/caches/9.4.0/transforms/7681f29af00bb5497f1bf5c72adaf824/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:31:17-49
+100            <meta-data
+100-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:29:13-31:52
+101                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+101-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:30:17-85
+102                android:value="androidx.startup" />
+102-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:31:17-49
+103        </provider>
+104
+105        <uses-library
+105-->[androidx.window:window:1.0.0] /home/codespace/.gradle/caches/9.4.0/transforms/da74c31fed244d0a0f73a981466608f1/transformed/window-1.0.0/AndroidManifest.xml:25:9-27:40
+106            android:name="androidx.window.extensions"
+106-->[androidx.window:window:1.0.0] /home/codespace/.gradle/caches/9.4.0/transforms/da74c31fed244d0a0f73a981466608f1/transformed/window-1.0.0/AndroidManifest.xml:26:13-54
+107            android:required="false" />
+107-->[androidx.window:window:1.0.0] /home/codespace/.gradle/caches/9.4.0/transforms/da74c31fed244d0a0f73a981466608f1/transformed/window-1.0.0/AndroidManifest.xml:27:13-37
+108        <uses-library
+108-->[androidx.window:window:1.0.0] /home/codespace/.gradle/caches/9.4.0/transforms/da74c31fed244d0a0f73a981466608f1/transformed/window-1.0.0/AndroidManifest.xml:28:9-30:40
+109            android:name="androidx.window.sidecar"
+109-->[androidx.window:window:1.0.0] /home/codespace/.gradle/caches/9.4.0/transforms/da74c31fed244d0a0f73a981466608f1/transformed/window-1.0.0/AndroidManifest.xml:29:13-51
+110            android:required="false" />
+110-->[androidx.window:window:1.0.0] /home/codespace/.gradle/caches/9.4.0/transforms/da74c31fed244d0a0f73a981466608f1/transformed/window-1.0.0/AndroidManifest.xml:30:13-37
+111
+112        <receiver
+112-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:34:9-52:20
+113            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+113-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:35:13-76
+114            android:directBootAware="false"
+114-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:36:13-44
+115            android:enabled="true"
+115-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:37:13-35
+116            android:exported="true"
+116-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:38:13-36
+117            android:permission="android.permission.DUMP" >
+117-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:39:13-57
+118            <intent-filter>
+118-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:40:13-42:29
+119                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+119-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:17-91
+119-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:25-88
+120            </intent-filter>
+121            <intent-filter>
+121-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:43:13-45:29
+122                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+122-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:17-85
+122-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:25-82
+123            </intent-filter>
+124            <intent-filter>
+124-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:46:13-48:29
+125                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+125-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:17-88
+125-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:25-85
+126            </intent-filter>
+127            <intent-filter>
+127-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:49:13-51:29
+128                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+128-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:17-95
+128-->[androidx.profileinstaller:profileinstaller:1.4.0] /home/codespace/.gradle/caches/9.4.0/transforms/864ecb3f4cc16c14a6a09c6942a90848/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:25-92
+129            </intent-filter>
+130        </receiver>
+131    </application>
+132
+133</manifest>

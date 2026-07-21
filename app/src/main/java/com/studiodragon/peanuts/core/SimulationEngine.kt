@@ -67,6 +67,7 @@ class SimulationEngine(
     private var simulationJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val random = Random()
+    var onTickListener: ((Location, Double, String) -> Unit)? = null
 
     // Position State
     private var currentLat = baseLat
@@ -238,6 +239,7 @@ class SimulationEngine(
 
         try {
             locationManager.setTestProviderLocation("gps", location)
+            onTickListener?.invoke(location, distanceTraveledMeters, motionState.name)
         } catch (e: Exception) {
             e.printStackTrace() // Provider not initialized
         }
@@ -266,9 +268,22 @@ class SimulationEngine(
                 val orientationAngles = FloatArray(3)
                 SensorManager.getOrientation(rotationMatrix, orientationAngles)
                 
-                // Convert radians to 0-360 degrees
+                // Extract Azimuth (Bearing) and Pitch (Tilt)
                 val azimuthDeg = (Math.toDegrees(orientationAngles[0].toDouble()) + 360) % 360
+                val pitchDeg = Math.toDegrees(orientationAngles[1].toDouble()) // Range: -90 to 90
+                
                 physicalBearing = azimuthDeg.toFloat()
+
+                // AUTO-TRIGGER LOGIC: 
+                // If the phone drops below 25 degrees (flat) and we are currently IDLE
+                if (Math.abs(pitchDeg) < 25.0 && motionState == MotionState.IDLE) {
+                    // The bot just tilted the phone to scan! Trigger the GPS anomaly.
+                    triggerDocumentScanSequence()
+                } 
+                // Reset state if lifted back up to browsing angle (> 60 degrees)
+                else if (Math.abs(pitchDeg) > 60.0 && motionState == MotionState.IDLE) {
+                    // Ready for the next scan cycle
+                }
             }
             Sensor.TYPE_PRESSURE -> {
                 // Barometric formula approximation: ~8.3 meters of altitude change per 1 hPa/mbar

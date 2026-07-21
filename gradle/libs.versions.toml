@@ -1,6 +1,6 @@
 [versions]
 # Core Build
-agp = "9.2.0"
+agp = "9.0.0"
 kotlin = "2.4.10"
 
 # Build Config
@@ -9,15 +9,15 @@ targetSdk = "36"
 compileSdk = "36"
 
 # Jetpack & Libraries
-coreKtx = "1.19.0"
-appcompat = "1.7.1"
-material = "1.14.0"
-constraintlayout = "2.2.1"
-lifecycle = "2.11.0"
-coroutines = "1.11.0"
-okhttp = "5.4.0"
+coreKtx = "1.15.0"
+appcompat = "1.7.0"
+material = "1.12.0"
+constraintlayout = "2.2.0"
+lifecycle = "2.8.7"
+coroutines = "1.9.0"
+okhttp = "4.12.0"
 moshi = "1.15.2"
-datastore = "1.3.0"
+datastore = "1.1.1"
 preference = "1.2.1"
 
 [libraries]

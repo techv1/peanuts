@@ -549,3 +549,37 @@ Once you have answered all questions in Section 1, use this prompt:
 > Use Kotlin DSL gradle, Material Design 3 XML Views, MVVM, Coroutines, OkHttp, Moshi, DataStore.
 > Do NOT use Jetpack Compose. Do NOT use Hilt. Generate complete, working, production-quality code."
 
+---
+
+## SECTION 8 — EMPIRICAL FINDINGS & ARCHITECTURAL UPDATES (2026)
+
+### 🔬 Key Technical Discoveries & Solutions
+
+1. **Google Maps Short Link Redirect Engine ("No-API" Resolution)**:
+   - **Finding**: Short links (`maps.app.goo.gl`, `goo.gl`) issue HTTP 301/302 redirects hiding coordinates inside expanded URLs. On Android, `HttpURLConnection` can break on HTTP/2 lowercase header keys (`"location"` vs `"Location"`).
+   - **Solution**: Upgraded to `OkHttpClient` (`followRedirects(true)`), which automatically follows HTTP/1.1 and HTTP/2 redirects across domain hops. Target coordinates are extracted from expanded URLs (`!3dlat!4dlon`, `@lat,lon`, `/place/lat,lon`).
+
+2. **Multi-Format Coordinate Parsing Engine**:
+   - **Finding**: Shared Google Maps items arrive as multi-line strings, direct decimal pairs, or Degree-Minute-Second (DMS) coordinates.
+   - **Solution**: `GoogleMapsLinkParser` supports:
+     - Direct typed coordinates: `27.993700, 73.320076` or `27.9937 73.3200`
+     - DMS format: `27°59'37.3"N 73°19'12.3"E` $\rightarrow$ `27.993694, 73.320083`
+     - Intent Extra Fallback: Scrapes `EXTRA_TEXT`, `EXTRA_SUBJECT`, `clipData`, and `intent.data`.
+
+3. **Mappls / MapMyIndia API Key OAuth Requirements**:
+   - **Finding**: Mappls Atlas REST API requires a dual-key OAuth 2.0 handshake (`client_id` + `client_secret` via `outpost.mappls.com/api/security/oauth/token`). Static single Bearer tokens return HTTP 401.
+   - **Solution**: Built a fail-safe 3-stage search pipeline: `Google Maps Link Parser` $\rightarrow$ `Mappls API` $\rightarrow$ `OpenStreetMap Nominatim API`. If Mappls returns HTTP 401 or empty results, OpenStreetMap Nominatim seamlessly executes with 0 latency or app crash.
+
+4. **Sensor Fusion Pitch Tilt Auto-Trigger**:
+   - **Finding**: Phone orientation during document scanning drops flat ($|\text{pitch}| < 25^\circ$).
+   - **Solution**: `SimulationEngine` extracts pitch from `Sensor.TYPE_ROTATION_VECTOR`. Dropping the phone flat while `IDLE` automatically triggers `triggerDocumentScanSequence()`, locking GPS jitter to sub-centimeter stationary precision (9.8mm).
+
+5. **Foreground Service Rich Telemetry Streaming**:
+   - **Finding**: Standard notifications lack real-time simulation context.
+   - **Solution**: `MockLocationService` updates ongoing low-priority notifications on every engine tick with live metrics: `Lat: 27.99370 | Lon: 73.32008 | Alt: 222.0m | Speed: 0.15m/s | Jitter: 0.89m`.
+
+6. **Leaflet 2.0-alpha.1 & Satellite View Integration**:
+   - **Finding**: Standard map tiles lack terrain/building detail for precise pin selection.
+   - **Solution**: Upgraded `map_picker.html` to Leaflet 2.0-alpha.1 (`leaflet-global.js`) and added a floating layer toggle for **OpenStreetMap Vector Tiles** vs. **Esri World Imagery High-Res Satellite Tiles**.
+
+

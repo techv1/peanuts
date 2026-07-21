@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.studiodragon.peanuts.app-mergeReleaseResources-42:/layout/activity_settings.xml",
+        "source": "com.studiodragon.peanuts.app-main-45:/layout/activity_settings.xml"
+    },
+    {
+        "merged": "com.studiodragon.peanuts.app-mergeReleaseResources-42:/layout/activity_map_picker.xml",
+        "source": "com.studiodragon.peanuts.app-main-45:/layout/activity_map_picker.xml"
+    },
+    {
+        "merged": "com.studiodragon.peanuts.app-mergeReleaseResources-42:/layout/activity_main.xml",
+        "source": "com.studiodragon.peanuts.app-main-45:/layout/activity_main.xml"
+    }
+]

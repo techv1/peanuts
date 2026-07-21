@@ -3,4 +3,16 @@
     <string name="app_name">peanuts</string>
     <string name="app_description">best 3d game</string>
     <string name="mock_location_label">peanuts</string>
+
+    <string-array name="stop_mode_entries">
+        <item>Gradual Fade (12s smooth stop)</item>
+        <item>Instant Snap</item>
+        <item>Freeze (Keep last coordinate)</item>
+    </string-array>
+
+    <string-array name="stop_mode_values">
+        <item>GRADUAL</item>
+        <item>INSTANT</item>
+        <item>FREEZE</item>
+    </string-array>
 </resources>
