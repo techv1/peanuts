@@ -1,54 +1,43 @@
 package com.studiodragon.peanuts.core
 
-// TODO: Jitter, noise, altitude, bearing math
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.SystemClock
 import kotlinx.coroutines.*
 import java.util.Random
+import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
- * Configuration parameters for the Simulation Engine.
- * All magic numbers are extracted here for easy remote-config or tuning.
+ * Configuration parameters for the Sensor Fusion Simulation Engine.
  */
 data class SimConfig(
-    // Core Timing & Jitter
-    val updateIntervalMs: Long = 1000,
-    val updateJitterMs: Long = 80,               // ±80ms interval randomization
-    val jitterAmplitudeDeg: Double = 0.000008,   // ±0.9m default baseline jitter
+    // Core Timing
+    val baseUpdateIntervalMs: Long = 1000,
+    val cameraInterruptDelayMs: Long = 250,      // The "Rapid Tick" when camera initializes
 
-    // Occasional large signal gaps (Dropouts)
-    val dropoutProbability: Float = 0.015f,      // ~1.5% chance per tick to cause a gap
-    val dropoutDelayMinMs: Long = 1500,
-    val dropoutDelayMaxMs: Long = 2500,
-
-    // Environmental Interference (Burst Simulation)
-    val burstIntervalMinTicks: Int = 15,
-    val burstIntervalMaxTicks: Int = 30,
-    val burstDurationTicks: Int = 3,
-    val burstJitterMultiplier: Double = 4.0,     // 4x normal jitter during burst
+    // Spatial Jitter (Micro-Drift)
+    val jitterWalkingDeg: Double = 0.000008,     // ~0.9m baseline jitter
+    val jitterStationaryDeg: Double = 0.00000009,// ~9.8mm absolute flatline lock
+    
+    // Kalman Filter (Velocity lag)
+    val kalmanAlpha: Double = 0.25,              // Speed adapts 25% toward actual distance per tick (Lag)
+    val stationarySpeedHum: Float = 0.155f,      // The baseline Doppler noise when standing still
 
     // Accuracy Metrics
-    val accuracyMin: Float = 3.5f,
-    val accuracyMax: Float = 9.5f,
-    val verticalAccBaseMultiplier: Float = 1.5f, // Vertical is typically 1.5x worse
+    val accuracyMin: Float = 3.2f,
+    val accuracyMax: Float = 5.0f,
+    val verticalAccBaseMultiplier: Float = 1.5f,
 
-    // Kinematics (Speed & Bearing)
-    val speedMean: Double = 0.08,
-    val speedStdDev: Double = 0.1,
-    val speedMin: Float = 0.0f,
-    val speedMax: Float = 0.67f,
-    val speedZeroProbability: Float = 0.025f,
-    val speedThresholdForBearing: Float = 0.05f, // Speed below which GPS drops bearing
-    val bearingMaxDriftPerTick: Double = 5.0,    // ±5° random walk per tick
-
-    // Altitude
-    val altitudeNoiseM: Double = 1.5,            // ±1.5m per tick Gaussian
-    val altitudeDriftAmplitude: Double = 4.0,    // ±4m slow sine wave
-    val altitudeDriftFrequency: Double = 0.008,  // Sine wave frequency multiplier
-
+    // Altitude Physics
+    val altitudeNoiseM: Double = 0.2,            // GPS altitude static noise
+    
     // Lifecycle
     val stopMode: StopMode = StopMode.GRADUAL,
     val gradualFadeDurationMs: Long = 12000
@@ -56,33 +45,58 @@ data class SimConfig(
 
 enum class StopMode { INSTANT, GRADUAL, FREEZE }
 
+enum class MotionState { 
+    IDLE, 
+    DROP_TO_DOC, 
+    SCANNING_DOC, 
+    LIFT_TO_SELFIE 
+}
+
 /**
- * The core GPS Simulation Engine.
+ * Advanced Multi-Sensor GPS Simulation Engine.
  */
 class SimulationEngine(
     private val locationManager: LocationManager,
+    private val sensorManager: SensorManager,
     private val baseLat: Double,
     private val baseLon: Double,
     private val baseAlt: Double,
     private val config: SimConfig = SimConfig()
-) {
+) : SensorEventListener {
+
     private var simulationJob: Job? = null
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private val random = Random()
 
-    // State Variables
+    // Position State
     private var currentLat = baseLat
     private var currentLon = baseLon
     private var currentAccuracy = (config.accuracyMin + config.accuracyMax) / 2f
-    private var currentBearing = random.nextDouble() * 360.0
-    private var tickCount = 0L
     
-    // Burst State
-    private var nextBurstTarget = randomInt(config.burstIntervalMinTicks, config.burstIntervalMaxTicks)
-    private var ticksSinceLastBurst = 0
+    // Kalman Filter State
+    private var reportedSpeed = 0.0
+    private var lastTickNanos = SystemClock.elapsedRealtimeNanos()
+
+    // Hardware Sensor Injection State
+    private var physicalBearing: Float? = null
+    private var initialPressure: Float? = null
+    private var relativeAltitudeOffset: Double = 0.0
+
+    // Sequence State Machine
+    private var motionState = MotionState.IDLE
+    private var stateTicksLeft = 0
 
     fun start() {
         if (simulationJob?.isActive == true) return
+
+        // 1. Hijack physical hardware sensors for undeniable data matching
+        val rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        val pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE)
+        
+        sensorManager.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_UI)
+        sensorManager.registerListener(this, pressureSensor, SensorManager.SENSOR_DELAY_UI)
+
+        lastTickNanos = SystemClock.elapsedRealtimeNanos()
 
         simulationJob = coroutineScope.launch {
             try {
@@ -90,151 +104,189 @@ class SimulationEngine(
                     processTick()
                 }
             } catch (e: CancellationException) {
-                // Normal cancellation, handled cleanly
+                // Handled
             }
         }
     }
 
     fun stop() {
+        sensorManager.unregisterListener(this)
         when (config.stopMode) {
             StopMode.INSTANT, StopMode.FREEZE -> {
                 simulationJob?.cancel()
                 simulationJob = null
             }
-            StopMode.GRADUAL -> {
-                coroutineScope.launch {
-                    fadeAndStop()
-                }
-            }
+            StopMode.GRADUAL -> coroutineScope.launch { fadeAndStop() }
+        }
+    }
+
+    /**
+     * Triggers the physical sequence: Selfie -> Fast Drop -> Flatline Scan -> Lift
+     */
+    fun triggerDocumentScanSequence() {
+        if (motionState == MotionState.IDLE) {
+            motionState = MotionState.DROP_TO_DOC
+            stateTicksLeft = 1 // 1 tick to drop
         }
     }
 
     private suspend fun processTick(fadeMultiplier: Double = 1.0) {
-        // 1. Timing & Dropouts
-        if (random.nextFloat() < config.dropoutProbability && fadeMultiplier == 1.0) {
-            val dropDelay = randomLong(config.dropoutDelayMinMs, config.dropoutDelayMaxMs)
-            delay(dropDelay)
-        } else {
-            val normalDelay = config.updateIntervalMs + randomLong(-config.updateJitterMs, config.updateJitterMs)
-            delay(normalDelay)
+        val currentNanos = SystemClock.elapsedRealtimeNanos()
+        val dtNanos = currentNanos - lastTickNanos
+        lastTickNanos = currentNanos
+        val dtSeconds = dtNanos / 1_000_000_000.0
+
+        // 1. State Machine & Hardware Interrupt Timing
+        var targetDelayMs = config.baseUpdateIntervalMs
+        var activeJitterBase = config.jitterWalkingDeg
+        var positionalJump = 0.0
+
+        when (motionState) {
+            MotionState.IDLE -> {
+                activeJitterBase = config.jitterWalkingDeg
+            }
+            MotionState.DROP_TO_DOC -> {
+                // Rapid movement down and forward
+                positionalJump = 0.000005 // Approx 0.5 meters
+                targetDelayMs = config.cameraInterruptDelayMs // RAPID TICK for camera OS interrupt
+                stateTicksLeft--
+                if (stateTicksLeft <= 0) {
+                    motionState = MotionState.SCANNING_DOC
+                    stateTicksLeft = 5 // Stay in doc scan for 5 ticks
+                }
+            }
+            MotionState.SCANNING_DOC -> {
+                // Sub-centimeter lock (9.8mm)
+                activeJitterBase = config.jitterStationaryDeg 
+                stateTicksLeft--
+                if (stateTicksLeft <= 0) {
+                    motionState = MotionState.LIFT_TO_SELFIE
+                    stateTicksLeft = 1
+                }
+            }
+            MotionState.LIFT_TO_SELFIE -> {
+                positionalJump = -0.000005 // Revert position
+                targetDelayMs = config.cameraInterruptDelayMs
+                stateTicksLeft--
+                if (stateTicksLeft <= 0) motionState = MotionState.IDLE
+            }
         }
 
-        // 2. Burst State Calculation
-        val isBurst = (ticksSinceLastBurst < config.burstDurationTicks)
-        ticksSinceLastBurst++
+        // Apply CPU Thread Dispatching Jitter to the delay (simulate OS lag)
+        val osJitter = random.nextGaussian() * 40
+        delay((targetDelayMs + osJitter).toLong().coerceAtLeast(100))
 
-        if (ticksSinceLastBurst >= nextBurstTarget) {
-            ticksSinceLastBurst = 0
-            nextBurstTarget = randomInt(config.burstIntervalMinTicks, config.burstIntervalMaxTicks)
-        }
-
-        // 3. Position Jitter (Damped noise)
-        val jitterBase = if (isBurst) config.jitterAmplitudeDeg * config.burstJitterMultiplier else config.jitterAmplitudeDeg
-        val effectiveJitter = jitterBase * fadeMultiplier
+        // 2. Spatial Math (Calculate raw movement)
+        val oldLat = currentLat
+        val oldLon = currentLon
         
-        currentLat += random.nextGaussian() * effectiveJitter
-        currentLon += random.nextGaussian() * effectiveJitter
+        currentLat += (random.nextGaussian() * activeJitterBase) + positionalJump
+        currentLon += (random.nextGaussian() * activeJitterBase) + positionalJump
 
-        // 4. Accuracy & Metadata (Coupled to Burst State)
-        val satellites: Int
-        val hdop: Float
-        val accuracyDrift: Float
+        // Rough Haversine approx for velocity calculation (in meters)
+        val dLatMeters = (currentLat - oldLat) * 111320
+        val dLonMeters = (currentLon - oldLon) * 111320 * cos(Math.toRadians(baseLat))
+        val distanceTraveledMeters = sqrt((dLatMeters * dLatMeters) + (dLonMeters * dLonMeters))
 
-        if (isBurst) {
-            satellites = randomInt(4, 7)       // Degraded satellites
-            hdop = randomFloat(1.5f, 3.0f)     // High HDOP (bad geometry)
-            accuracyDrift = (random.nextFloat() - 0.5f) * 1.2f
-        } else {
-            satellites = randomInt(8, 12)      // Clear sky
-            hdop = randomFloat(0.8f, 1.4f)     // Good geometry
-            accuracyDrift = (random.nextFloat() - 0.5f) * 0.8f
-        }
-
-        currentAccuracy = (currentAccuracy + accuracyDrift).coerceIn(config.accuracyMin, config.accuracyMax)
+        // 3. KALMAN VELOCITY FILTER (Decouple speed from distance jump)
+        val rawCalculatedSpeed = distanceTraveledMeters / dtSeconds
         
-        // Vertical accuracy breathes dynamically (1.5x - 2.0x worse than horizontal)
-        val verticalAccuracy = currentAccuracy * (config.verticalAccBaseMultiplier + random.nextFloat() * 0.5f)
-
-        // 5. Kinematics (Gaussian Speed & Nullable Bearing)
-        var speed = 0.0f
-        if (random.nextFloat() >= config.speedZeroProbability) {
-            // Pull from normal distribution, coerce to bounds, scale down if fading
-            val rawSpeed = random.nextGaussian() * config.speedStdDev + config.speedMean
-            speed = rawSpeed.toFloat().coerceIn(config.speedMin, config.speedMax) * fadeMultiplier.toFloat()
+        if (motionState == MotionState.SCANNING_DOC || motionState == MotionState.IDLE) {
+            // Apply baseline Doppler hum when still (e.g., 0.155m/s)
+            val dopplerNoise = config.stationarySpeedHum + (random.nextGaussian() * 0.02)
+            reportedSpeed = (config.kalmanAlpha * dopplerNoise) + ((1 - config.kalmanAlpha) * reportedSpeed)
+        } else {
+            // Exponential Moving Average to lag the speed spike behind the coordinate jump
+            reportedSpeed = (config.kalmanAlpha * rawCalculatedSpeed) + ((1 - config.kalmanAlpha) * reportedSpeed)
         }
+        val finalSpeed = reportedSpeed.toFloat().coerceAtLeast(0f) * fadeMultiplier.toFloat()
 
-        val hasBearing = speed >= config.speedThresholdForBearing
-        if (hasBearing) {
-            // Random walk for bearing
-            val drift = (random.nextDouble() * 2 - 1) * config.bearingMaxDriftPerTick
-            currentBearing = (currentBearing + drift).rem(360.0)
-            if (currentBearing < 0) currentBearing += 360.0
-        }
+        // 4. Barometric Altitude Injection
+        // We use base altitude + simulated GPS noise + real physical barometric drops
+        val currentAlt = baseAlt + (random.nextGaussian() * config.altitudeNoiseM) + relativeAltitudeOffset
 
-        // 6. Altitude (Sine drift + Gaussian noise)
-        val altitudeDrift = sin(tickCount * config.altitudeDriftFrequency) * config.altitudeDriftAmplitude
-        val currentAlt = baseAlt + altitudeDrift + (random.nextGaussian() * config.altitudeNoiseM)
-
-        // 7. Payload Assembly
+        // 5. Payload Assembly
         val location = Location("gps").apply {
             latitude = currentLat
             longitude = currentLon
             altitude = currentAlt
             accuracy = currentAccuracy
-            
-            // Speed and Bearing
-            this.speed = speed
-            if (hasBearing) {
-                bearing = currentBearing.toFloat()
-            } // If false, we leave it unset. Android API treats it as not having bearing.
+            speed = finalSpeed
 
-            // API 26+ Vertical Accuracy
+            // Inject the real physical bearing of the device instead of a fake random walk
+            physicalBearing?.let {
+                bearing = it
+            }
+            
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                verticalAccuracyMeters = verticalAccuracy
+                verticalAccuracyMeters = currentAccuracy * config.verticalAccBaseMultiplier
+                speedAccuracyMetersPerSecond = 0.1f + random.nextFloat() * 0.2f
+                if (physicalBearing != null) bearingAccuracyDegrees = 5.0f + random.nextFloat() * 2f
             }
 
-            // CRITICAL: Anti-Mock Detection Fields
+            // Undeniable System Clock Signatures
             time = System.currentTimeMillis()
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
+                elapsedRealtimeNanos = currentNanos
             }
             
             extras = Bundle().apply {
-                putInt("satellites", satellites)
-                putFloat("hdop", hdop)
+                putInt("satellites", if (motionState == MotionState.SCANNING_DOC) 12 else randomInt(8, 11))
+                putFloat("hdop", if (motionState == MotionState.SCANNING_DOC) 0.8f else randomFloat(0.9f, 1.2f))
             }
         }
 
-        // 8. Dispatch to Test Provider
         try {
             locationManager.setTestProviderLocation("gps", location)
         } catch (e: Exception) {
-            // Failsafe if the provider hasn't been properly added via addTestProvider
-            e.printStackTrace()
+            e.printStackTrace() // Provider not initialized
         }
-        
-        tickCount++
     }
 
-    /**
-     * Handles the GRADUAL stop mode by ramping down movement/jitter multipliers
-     * before permanently killing the loop.
-     */
     private suspend fun fadeAndStop() {
         val oldJob = simulationJob
-        simulationJob = null // Prevent main loop from continuing
+        simulationJob = null
         oldJob?.cancelAndJoin()
 
-        val steps = (config.gradualFadeDurationMs / config.updateIntervalMs).toInt()
-        
+        val steps = (config.gradualFadeDurationMs / config.baseUpdateIntervalMs).toInt()
         for (i in steps downTo 1) {
             val fadeMultiplier = i.toDouble() / steps.toDouble()
             processTick(fadeMultiplier = fadeMultiplier)
         }
     }
 
+    // --- HARDWARE SENSOR FUSION IMPLEMENTATION ---
+    
+    override fun onSensorChanged(event: SensorEvent) {
+        when (event.sensor.type) {
+            Sensor.TYPE_ROTATION_VECTOR -> {
+                // Translate rotation matrix into a physical compass bearing
+                val rotationMatrix = FloatArray(9)
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
+                val orientationAngles = FloatArray(3)
+                SensorManager.getOrientation(rotationMatrix, orientationAngles)
+                
+                // Convert radians to 0-360 degrees
+                val azimuthDeg = (Math.toDegrees(orientationAngles[0].toDouble()) + 360) % 360
+                physicalBearing = azimuthDeg.toFloat()
+            }
+            Sensor.TYPE_PRESSURE -> {
+                // Barometric formula approximation: ~8.3 meters of altitude change per 1 hPa/mbar
+                val currentPressure = event.values[0]
+                if (initialPressure == null) {
+                    initialPressure = currentPressure
+                } else {
+                    relativeAltitudeOffset = ((initialPressure!! - currentPressure) * 8.3).toDouble()
+                }
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Ignored for simulation purposes
+    }
+
     // --- Utility Math Functions ---
-    private fun randomLong(min: Long, max: Long): Long = min + (random.nextDouble() * (max - min)).toLong()
     private fun randomInt(min: Int, max: Int): Int = min + random.nextInt(max - min + 1)
     private fun randomFloat(min: Float, max: Float): Float = min + random.nextFloat() * (max - min)
 }
